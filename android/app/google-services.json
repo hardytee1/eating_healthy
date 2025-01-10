@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "446235599424",
+    "project_id": "eating-healthy-877b4",
+    "storage_bucket": "eating-healthy-877b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446235599424:android:0ba92b8ccbb87cbe04f5a5",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCedVZgJ7ZmpR4Htq1xIbUhUWTEuEesV2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446235599424:android:fb17b23d90605c3804f5a5",
+        "android_client_info": {
+          "package_name": "com.hardytee.my.id.eatinghealthy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCedVZgJ7ZmpR4Htq1xIbUhUWTEuEesV2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
