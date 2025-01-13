@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/meal_data.dart';
+import '../services/api_service.dart';
 import 'food_i_want_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -20,12 +20,54 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  List<String> _meals = MealData.getRandomMeals();
+  List<String> _meals = [];
+  bool _isLoading = false;
+  String _errorMessage = '';
 
-  void _refreshMeal(int dayIndex) {
+  @override
+  void initState() {
+    super.initState();
+    _fetchMealPlan();
+  }
+
+  void _fetchMealPlan() async {
     setState(() {
-      _meals[dayIndex] = MealData.getRandomMeal();
+      _isLoading = true;
+      _errorMessage = '';
     });
+
+    try {
+      final results = await ApiService.generateMealPlan(
+        age: widget.age,
+        gender: widget.gender,
+        dietPreference: widget.dietPreference,
+        allowedFood: widget.allowedFood,
+      );
+
+      setState(() {
+        _meals = results;
+        if (_meals.isEmpty) {
+          _errorMessage = "No meals available. Please try again.";
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Failed to fetch meal plan. Please try again.";
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _refreshMealPlan() {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    _fetchMealPlan();  // Re-fetch the meal plan
   }
 
   @override
@@ -51,24 +93,39 @@ class _DashboardPageState extends State<DashboardPage> {
             Text('Allowed Food: ${widget.allowedFood}'),
             SizedBox(height: 20),
 
-            // Meal Plan List
-            Expanded(
-              child: ListView.builder(
-                itemCount: 7, // Show exactly 7 days
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      title: Text('Day ${index + 1}'),
-                      subtitle: Text(_meals[index]),
-                      trailing: IconButton(
-                        icon: Icon(Icons.refresh),
-                        onPressed: () => _refreshMeal(index),
-                      ),
-                    ),
-                  );
-                },
-              ),
+            // Search/Refresh Button
+            ElevatedButton(
+              onPressed: _refreshMealPlan,
+              child: Text("Refresh Meal Plan"),
             ),
+            SizedBox(height: 20),
+
+            // Show loading indicator if meal data is being fetched
+            if (_isLoading)
+              Center(child: CircularProgressIndicator()),
+
+            // Show error message if there's an error
+            if (_errorMessage.isNotEmpty)
+              Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red))),
+
+            // Meal Plan List
+            if (!_isLoading && _meals.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _meals.length -1,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: ListTile(
+                        title: Text('Day ${index + 1}'),
+                        subtitle: Text(_meals[index]),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+            if (_meals.isEmpty && !_isLoading)
+              Center(child: Text("No meals available. Please try again.")),
           ],
         ),
       ),

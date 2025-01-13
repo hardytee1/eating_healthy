@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://127.0.0.1:8000"; // Change to your backend URL
+  static const String baseUrl = "http://4.240.96.2:8000"; // Your backend URL
 
   static Future<List<String>> generateMealPlan({
     required int age,
@@ -10,37 +10,63 @@ class ApiService {
     required String dietPreference,
     required String allowedFood,
   }) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/generate-meal-plan/"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "age": age,
-        "gender": gender,
-        "diet_preference": dietPreference,
-        "allowed_food": allowedFood,
-      }),
-    );
+    final uri = Uri.parse("$baseUrl/generate-meal-plan/").replace(queryParameters: {
+      'age': age.toString(),
+      'gender': gender,
+      'diet_preference': dietPreference,
+      'allowed_food': allowedFood,
+    });
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['meal_plan'].split("\n"); // Split into list if meal plan is line-separated
-    } else {
-      throw Exception("Failed to generate meal plan");
+    try {
+      final response = await http.get(uri, headers: {"Content-Type": "application/json"});
+
+      print("Request URL: $uri");
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['meal_plan'] != null) {
+          // Directly return the meal plan as a List<String> (split by newline)
+          return data['meal_plan'].split("\n");
+        } else {
+          throw Exception("Meal plan data not found.");
+        }
+      } else {
+        throw Exception("Failed to generate meal plan: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Failed to generate meal plan. Please try again.");
     }
   }
 
   static Future<List<String>> searchFood(String query) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/search-food/"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"query": query}),
-    );
+    final uri = Uri.parse("$baseUrl/search-food/").replace(queryParameters: {
+      'query': query,
+    });
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['recipes'].split("\n"); // Split into list if recipes are line-separated
-    } else {
-      throw Exception("Failed to search food");
+    try {
+      final response = await http.get(uri, headers: {"Content-Type": "application/json"});
+
+      print("Request URL: $uri");
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['recipes'] != null) {
+          return data['recipes'].split("\n");
+        } else {
+          throw Exception("No recipes found.");
+        }
+      } else {
+        throw Exception("Failed to fetch recipes: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Failed to fetch recipes. Please try again.");
     }
   }
+
 }
