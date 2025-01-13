@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://4.240.96.2:8000"; // Your backend URL
+  static const String baseUrl = "http://4.240.96.2:8000"; 
 
   static Future<List<String>> generateMealPlan({
     required int age,
@@ -27,7 +27,6 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['meal_plan'] != null) {
-          // Directly return the meal plan as a List<String> (split by newline)
           return data['meal_plan'].split("\n");
         } else {
           throw Exception("Meal plan data not found.");

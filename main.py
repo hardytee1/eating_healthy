@@ -14,7 +14,7 @@ def root():
 @app.get("/generate-meal-plan/")
 def generate_meal_plan(age: int, gender: str, diet_preference: str, allowed_food: str):
     try:
-        prompt = f"Generate a 7-day healthy meal plan for a {age}-year-old {gender} who prefers {diet_preference} and eats {allowed_food}. List ONLY the name of the menu. we dont care about anything else. list it in this format -  1. MENU NAME\n2.  MENU NAME\n3. MENU NAME\n4.  MENU NAME\n5. MENU NAME\n6. MENU NAME\n7.  MENU NAME\n" 
+        prompt = f"Generate a 7-day healthy meal plan for a {age}-year-old {gender} who have a diet_preference of {diet_preference} and allowed food of {allowed_food}. List ONLY the name of the menu. if personal preference are not given, just give the general(no need to mention this). list it in this format -  1. MENU NAME\n2.  MENU NAME\n3. MENU NAME\n4.  MENU NAME\n5. MENU NAME\n6. MENU NAME\n7.  MENU NAME\n" 
         response = model.generate_content(prompt)
         return {"meal_plan": response.text}
     except Exception as e:

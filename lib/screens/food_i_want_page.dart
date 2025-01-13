@@ -12,6 +12,12 @@ class _FoodIWantPageState extends State<FoodIWantPage> {
   bool _isLoading = false;
   String _errorMessage = '';
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   void _searchMeals(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -44,6 +50,14 @@ class _FoodIWantPageState extends State<FoodIWantPage> {
     }
   }
 
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _filteredMeals.clear();
+      _errorMessage = '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,40 +68,55 @@ class _FoodIWantPageState extends State<FoodIWantPage> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Search Bar
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Search for food...',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    _searchMeals(_searchController.text);
-                  },
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search for food...',
+                      border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () {
+                          _searchMeals(_searchController.text);
+                        },
+                      ),
+                    ),
+                    onSubmitted: _searchMeals,
+                  ),
                 ),
-              ),
-              onSubmitted: _searchMeals,
+                SizedBox(width: 10),
+                IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                ),
+              ],
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 20),
 
-            // Show loading indicator if searching
             if (_isLoading)
               Center(child: CircularProgressIndicator()),
 
-            // Show error message if there's an error
             if (_errorMessage.isNotEmpty)
               Center(
-                child: Text(
-                  _errorMessage,
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
 
-            // Food List (Only show if there are items in the list)
             if (!_isLoading && _filteredMeals.isNotEmpty)
               Expanded(
                 child: ListView.builder(
-                  itemCount: _filteredMeals.length - 1, //karena data yang dikeluarkan AI ada 6 /n
+                  itemCount: _filteredMeals.length - 1, 
                   itemBuilder: (context, index) {
                     return Card(
                       child: ListTile(
@@ -97,9 +126,15 @@ class _FoodIWantPageState extends State<FoodIWantPage> {
                   },
                 ),
               ),
-            // Hide ListView when no data
             if (_filteredMeals.isEmpty && !_isLoading)
-              Center(child: Text("No results available.")),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    "No results available. Try refining your search.",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

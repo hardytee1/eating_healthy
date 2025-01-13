@@ -67,7 +67,7 @@ class _DashboardPageState extends State<DashboardPage> {
       _errorMessage = '';
     });
 
-    _fetchMealPlan();  // Re-fetch the meal plan
+    _fetchMealPlan(); 
   }
 
   @override
@@ -75,13 +75,13 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Healthy Eating Planner'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Details
             Text(
               'Welcome to your Healthy Eating Plan!',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -91,24 +91,41 @@ class _DashboardPageState extends State<DashboardPage> {
             Text('Gender: ${widget.gender}'),
             Text('Diet Preference: ${widget.dietPreference}'),
             Text('Allowed Food: ${widget.allowedFood}'),
-            SizedBox(height: 20),
+            Divider(height: 30, thickness: 1),
 
-            // Search/Refresh Button
-            ElevatedButton(
-              onPressed: _refreshMealPlan,
-              child: Text("Refresh Meal Plan"),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _refreshMealPlan,
+                icon: Icon(Icons.refresh),
+                label: Text("Refresh Meal Plan"),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
             ),
             SizedBox(height: 20),
 
-            // Show loading indicator if meal data is being fetched
             if (_isLoading)
               Center(child: CircularProgressIndicator()),
 
-            // Show error message if there's an error
             if (_errorMessage.isNotEmpty)
-              Center(child: Text(_errorMessage, style: TextStyle(color: Colors.red))),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      _errorMessage,
+                      style: TextStyle(color: Colors.red, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _fetchMealPlan,
+                      child: Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
 
-            // Meal Plan List
             if (!_isLoading && _meals.isNotEmpty)
               Expanded(
                 child: ListView.builder(
@@ -116,8 +133,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   itemBuilder: (context, index) {
                     return Card(
                       child: ListTile(
-                        title: Text('Day ${index + 1}'),
-                        subtitle: Text(_meals[index]),
+                        // title: Text('Day ${index + 1}'),
+                        title: Text(_meals[index]),
                       ),
                     );
                   },
@@ -131,32 +148,24 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       bottomNavigationBar: BottomAppBar(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Plan Button
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // No action needed since the user is already on this page
-                },
-                child: Text('Plan'),
-              ),
+            ElevatedButton.icon(
+              onPressed: () {},
+              icon: Icon(Icons.calendar_today),
+              label: Text('Plan'),
             ),
-            // Food I Want Button
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FoodIWantPage(),
-                    ),
-                  );
-                },
-                child: Text('Food I Want'),
-              ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FoodIWantPage(),
+                  ),
+                );
+              },
+              icon: Icon(Icons.fastfood),
+              label: Text('Food I Want'),
             ),
           ],
         ),

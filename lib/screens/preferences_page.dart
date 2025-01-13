@@ -26,26 +26,64 @@ class _PreferencesPageState extends State<PreferencesPage> {
     'Vegetarian',
     'Non-Pork',
     'Non-Beef',
-    'None',
+    'I am fine with anything',
   ];
 
-  @override
+  DropdownButtonFormField<String> buildDropdown({
+    required String label,
+    required List<String> items,
+    required String? value,
+    required void Function(String?) onChanged,
+    required String? Function(String?) validator,
+  }) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      value: value,
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: onChanged,
+      validator: validator,
+    );
+  }
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('User Preferences')),
+      appBar: AppBar(
+        title: Text('User Preferences'),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Age Input
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Age'),
+                  decoration: InputDecoration(
+                    labelText: 'Age',
+                    border: OutlineInputBorder(),
+                    helperText: 'Enter your age (e.g., 25)',
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Enter your age';
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your age';
+                    }
+                    final age = int.tryParse(value);
+                    if (age == null || age <= 0 || age > 120) {
+                      return 'Please enter a valid age';
+                    }
                     return null;
                   },
                   onSaved: (value) {
@@ -54,88 +92,87 @@ class _PreferencesPageState extends State<PreferencesPage> {
                 ),
                 SizedBox(height: 20),
 
-                // Gender Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(labelText: 'Gender'),
-                  items: ['Male', 'Female', 'Other'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                buildDropdown(
+                  label: 'Gender',
+                  items: ['Male', 'Female', 'Other'],
+                  value: _gender,
                   onChanged: (value) {
                     setState(() {
                       _gender = value;
                     });
                   },
                   validator: (value) {
-                    if (value == null) return 'Select your gender';
+                    if (value == null) {
+                      return 'Please select your gender';
+                    }
                     return null;
                   },
                 ),
                 SizedBox(height: 20),
 
-                // Diet Preference Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(labelText: 'Are you on a diet?'),
-                  items: _dietOptions.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                buildDropdown(
+                  label: 'Are you on a diet?',
+                  items: _dietOptions,
+                  value: _dietPreference,
                   onChanged: (value) {
                     setState(() {
                       _dietPreference = value;
                     });
                   },
                   validator: (value) {
-                    if (value == null) return 'Select a diet preference';
+                    if (value == null) {
+                      return 'Please select a diet preference';
+                    }
                     return null;
                   },
                 ),
                 SizedBox(height: 20),
 
-                // Allowed Food Dropdown
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(labelText: 'Allowed Food'),
-                  items: _foodOptions.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                buildDropdown(
+                  label: 'Allowed Food',
+                  items: _foodOptions,
+                  value: _allowedFood,
                   onChanged: (value) {
                     setState(() {
                       _allowedFood = value;
                     });
                   },
                   validator: (value) {
-                    if (value == null) return 'Select allowed food type';
+                    if (value == null) {
+                      return 'Please select allowed food type';
+                    }
                     return null;
                   },
                 ),
                 SizedBox(height: 20),
 
-                // Submit Button
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DashboardPage(
-                            age: _age!,
-                            gender: _gender!,
-                            dietPreference: _dietPreference!,
-                            allowedFood: _allowedFood!,
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Preferences saved!')),
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DashboardPage(
+                              age: _age!,
+                              gender: _gender!,
+                              dietPreference: _dietPreference!,
+                              allowedFood: _allowedFood!,
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text('Submit'),
+                        );
+                      }
+                    },
+                    child: Text('Submit'),
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    ),
+                  ),
                 ),
               ],
             ),
